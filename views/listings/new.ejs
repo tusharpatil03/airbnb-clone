@@ -1,0 +1,106 @@
+<% layout("/layouts/boilerplate") %>
+    <div class="row mt-3">
+        <div class="col-8 offset-2">
+            <h3>Create a New Listing</h3>
+
+            <form action="/listings" method="POST" novalidate class="needs-validation" enctype="multipart/form-data">
+                <div class="mb-3 mt-3">
+                    <label for="title" class="form-lable">Title</label>
+                    <input id="title" type="text" name="listing[title]" placeholder="Enter Title" class="form-control"
+                        required />
+                    <div class="invalid-feedback">Please Enter Title</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-lable">Description</label>
+                    <textarea id="description" rows="4" type="text" name="listing[description]" class="form-control"
+                        required></textarea>
+                    <div class="invalid-feedback">Write description about this place</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="imageUrl" class="form-lable">upload Image</label>
+                    <input id="imageUrl" type="file" name="listing[image]" class="form-control" />
+                </div>
+
+                <div class="row">
+                    <div class="mb-3 col-md-4">
+                        <label for="price" class="form-lable">Price</label>
+                        <input id="price" type="number" name="listing[price]" class="form-control" required />
+                        <div class="invalid-feedback">Enter Price</div>
+                    </div>
+
+                    <div class="mb-3 col-md-8">
+                        <label for="country" class="form-lable">country</label>
+                        <input id="country" type="text" name="listing[country]" class="form-control" required />
+                        <div class="invalid-feedback">Enter Country name</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="location" class="form-lable">Location</label>
+                    <input id="location" type="text" name="listing[location]" class="form-control" required />
+                    <div class="invalid-feedback">Enter Location</div>
+                </div>
+
+                <div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="listing[categary]" id="farm" value="farm">
+                        <label class="form-check-label" for="farm">
+                            Farm 
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="listing[categary]" id="city" value="city">
+                        <label class="form-check-label" for="city">
+                            Iconic Cities
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="listing[categary]" id="castle" value="castle">
+                        <label class="form-check-label" for="">
+                            Castle
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="listing[categary]" id="amazingPool" value="amazingPool">
+                        <label class="form-check-label" for="amazingPool">
+                            Amazing Pools
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="listing[categary]" id="camping" value="camping">
+                        <label class="form-check-label" for="camping">
+                            Camping
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="listing[categary]" id="artic" value="artic">
+                        <label class="form-check-label" for="artic">
+                            Artic
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="listing[categary]" id="room" value="room">
+                        <label class="form-check-label" for="room">
+                            Rooms
+                        </label>
+                    </div> 
+                </div>
+
+                <button class="btn btn-dark add-btn mt-3">Add</button>
+                <br /><br />
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('input[type=radio]').forEach(radio => {
+            radio.addEventListener('click', function() {
+                if (this.previous) {
+                    this.checked = false;
+                }
+                this.previous = this.checked;
+            });
+        });
+    </script>
