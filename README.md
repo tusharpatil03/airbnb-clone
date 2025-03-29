@@ -1,34 +1,31 @@
-### 🏡 Airbnb Clone
-This is a simple Airbnb Clone built using Node.js, Express, and EJS. The web pages are served by the server itself using Embedded JavaScript (EJS) templates.
+# 🏡 Airbnb Clone
 
-📌 Features
-🏠 List available properties
+This is a simple **Airbnb Clone** built using **Node.js, Express, and EJS**. The web pages are served by the server itself using **Embedded JavaScript (EJS)** templates.
 
-🔍 View property details
+## 📌 Features
 
-📝 Add new property listings
+- 🏠 List available properties  
+- 🔍 View property details  
+- 📝 Add new property listings  
+- 🗑️ Delete property listings  
+- 📄 Dynamic EJS templates for server-side rendering  
+- 🗄️ Data stored in **MongoDB**  
 
-🗑️ Delete property listings
+## 🛠 Tech Stack
 
-📄 Dynamic EJS templates for server-side rendering
+**Backend:** Node.js, Express.js, MongoDB  
+**Frontend:** HTML, CSS, Bootstrap, EJS  
 
-🗄️ Data stored in database (MongoDB)
+## 🚀 Installation & Setup
 
-🛠 Tech Stack
-Backend: Node.js, Express.js, mongoDb
+### 1️⃣ Clone the Repository
 
-Frontend: HTML, CSS, Bootstrap, EJS
-
-
-🚀 Installation & Setup
-1️⃣ Clone the Repository
+```sh
 git clone https://github.com/tusharpatil03/airbnb-clone.git
 cd airbnb-clone
 
-2️⃣ Install Dependencies
+#install dependencies
 npm install
 
-3️⃣ Run the Server
-npm start
-
-🚀 feel free to contrubute and make it better
+#start the development server
+npm run dev
