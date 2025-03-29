@@ -23,9 +23,16 @@ This is a simple **Airbnb Clone** built using **Node.js, Express, and EJS**. The
 ```sh
 git clone https://github.com/tusharpatil03/airbnb-clone.git
 cd airbnb-clone
+```
 
+### 1️⃣ Install dependencies
+```sh
 #install dependencies
 npm install
+```
 
+### 1️⃣ start server
+```sh
 #start the development server
 npm run dev
+```
