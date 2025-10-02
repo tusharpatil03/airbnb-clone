@@ -1,14 +1,20 @@
 const mongoose = require("mongoose");
 const initData = require("./data.js");
 const Listing = require("../models/listing.js");
-const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
-const mapToken = 'pk.eyJ1IjoiZGVsdGEtc3R1ZHVlbnQiLCJhIjoiY2xvMDk0MTVhMTJ3ZDJrcGR5ZDFkaHl4ciJ9.Gj2VU1wvxc7rFVt5E4KLOQ';
-const geocodingClient = mbxGeocoding({ accessToken: mapToken });
+const { fetchCord } = require("../utils/geocodingApi.js");
 
 
 async function main() {
     await mongoose.connect("mongodb://127.0.0.1:27017/wanderlust");
 }
+
+const addCoordinates = async () => {
+  for (let listing of sampleListings) {
+    const { lat, lon } = await fetchCord(listing.location);
+    listing.geometry.coordinates = [lat, lon];
+  }
+};
+
 
 main()
     .then(() => {
@@ -19,6 +25,7 @@ main()
     });
 
 const initDB = async () => {
+    await addCoordinates();
     await Listing.deleteMany({});
     initData.data = initData.data.map((obj) => ({ ...obj, owner: "6652c7b1abc3dcf233aad9e2" }));
     await Listing.insertMany(initData.data);
