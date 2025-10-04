@@ -1,12 +1,9 @@
 const Listing = require("../models/listing.js");
-const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const { fetchCord } = require("../utils/geocodingApi.js");
-// const mapToken = process.env.MAP_TOKEN;
-// const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 module.exports.index = async (req, res) => {
   const listings = await Listing.find({});
-  console.log(listings);
+  //console.log(listings);
   res.render("./listings/index.ejs", { listings });
 };
 
@@ -25,19 +22,20 @@ module.exports.showListing = async (req, res) => {
     req.flash("error", "Listing dose not Exist");
     res.redirect("/listings");
   }
-  res.render("./listings/show.ejs", { listing });
+  let currentUser = req.user;
+  res.render("./listings/show.ejs", { listing,  currentUser});
 };
 
 module.exports.createNewListing = async (req, res) => {
-  console.log(req.body.listing);
-  let result = {lat: 0, lon: 0};
-  try{
-    result = await fetchCord(req.body.listing.location);
-  }catch(e){
-    console.log("Error  in fetching coordinates");
-  }
-
   const newListing = new Listing(req.body.listing);
+
+  try {
+    const { lat, lon } = await fetchCord(req.body.listing.location);
+    newListing.geometry = { type: "Point", coordinates: [lat, lon] };
+  } catch (e) {
+    console.log("Error  in fetching coordinates");
+    newListing.geometry = { type: "Point", coordinates: [0, 0] };
+  }
 
   newListing.owner = req.user._id;
   if (req.file) {
@@ -45,7 +43,7 @@ module.exports.createNewListing = async (req, res) => {
     let filename = req.file.filename;
     newListing.image = { url, filename };
   }
-  newListing.geometry = { type: "Point", coordinates: [layout, lon] };
+  console.log(req.file);
 
   await newListing.save();
   req.flash("success", "New Listing Created");

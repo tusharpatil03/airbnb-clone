@@ -27,6 +27,7 @@
         </div>
       </div>
 
+      <%if(currentUser.username === listing?.owner?.username) { %>
       <div class="btns mb-4">
         <a
           href="/listings/<%= listing.id %>/edit"
@@ -42,6 +43,7 @@
           <button class="btn btn-danger">Delete</button>
         </form>
       </div>
+      <% } %>
 
       <hr />
 
@@ -53,6 +55,7 @@
           method="POST"
           novalidate
           class="needs-validation"
+          id="review-form"
         >
           <div class="mb-3">
             <label for="rating" class="form-label">Rating</label>
@@ -136,12 +139,14 @@
                   data-rating="<%= review.rating %>"
                 ></p>
                 <p class="card-text"><%= review.comment %></p>
+                <% if(currentUser?.username === review?.author?.username) { %>
                 <form
                   method="POST"
                   action="/listings/<%= listing.id %>/reviews/<%= review.id%>?_method=DELETE"
                 >
                   <button class="btn btn-sm btn-outline-danger">Delete</button>
                 </form>
+                <% } %>
               </div>
             </div>
           </div>
@@ -158,7 +163,26 @@
 </div>
 
 <script>
-  const listing = JSON.parse('<%- JSON.stringify(listing) %>');
+  const form = document.getElementById("review-form");
+  const ratingInputs = form.querySelectorAll('input[name="review[rating]"]');
+  form.addEventListener("submit", function (event) {
+    let isMinimumOneChecked = false;
+    ratingInputs.forEach((input) => {
+      if (input.checked && input.value !== "0") {
+        isMinimumOneChecked = true;
+      }
+    });
+    if (!isMinimumOneChecked) {
+      event.preventDefault();
+      event.stopPropagation();
+      alert("Please select a rating before submitting the review.");
+      return;
+    }
+  });
+</script>
+
+<script>
+  const listing = JSON.parse("<%- JSON.stringify(listing) %>");
   const fetchCord = async (city = "") => {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?q=${city}&format=json&limit=1`
@@ -180,7 +204,9 @@
     }).addTo(map);
 
     const marker = L.marker([lat, lon]).addTo(map);
-    marker.bindPopup(`<b><%= listing.title %></b><br><%= listing.location %>`).openPopup();
+    marker
+      .bindPopup(`<b><%= listing.title %></b><br><%= listing.location %>`)
+      .openPopup();
   };
 
   initMap();
