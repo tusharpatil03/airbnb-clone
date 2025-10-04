@@ -3,6 +3,7 @@ const Review = require("./models/review.js");
 const { listingSchema } = require("./schema.js");  //joi schema used to validate request body object schema coming from post or put/patch request
 const { reviewSchema } = require("./schema.js");
 const ExpressError = require("./utils/ExpressError.js");
+const {upload} = require("./cloudConfig.js");
 
 module.exports.isLoggedIn = (req,res,next) => {
     if(!req.isAuthenticated()){
@@ -55,7 +56,7 @@ module.exports.validateListing = (req, res, next) => {
     //console.log("in validateListing:",req.body);
     let { error } = listingSchema.validate(req.body);
     if (error) {
-        console.log(error.message);
+        console.log("Listing Schema validation: ",error.message);
         throw new ExpressError(400, error);
     } else {
         next();
