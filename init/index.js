@@ -4,9 +4,11 @@ const Listing = require("../models/listing.js");
 const Review = require("../models/review.js");
 const User = require("../models/user.js");
 const { fetchCord } = require("../utils/geocodingApi.js");
+require("dotenv").config();
 
+const DATABASE_URI = process.env.MONGO_ATLAS_URL;
 async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/wanderlust");
+  await mongoose.connect(`${DATABASE_URI}`);
 }
 
 main()
