@@ -3,36 +3,48 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <div class="container mt-4">
+  <% if (listing) { %>
   <div class="row">
-    <div class="col-md-8 offset-md-2">
-      <h2 class="listing-title"><%= listing.title %></h2>
-      <p class="listing-location">
-        <%= listing.location %>, <%= listing.country %>
-      </p>
+    <div class="col-lg-10 offset-lg-1">
+      <header class="mb-4">
+        <h2 class="listing-title mb-2">
+          <%= (listing && listing.title) ? listing.title : "Untitled listing" %>
+        </h2>
+        <p class="listing-location text-muted mb-0">
+          <%= listing && listing.location ? listing.location : "Unknown location" %>
+          <% if (listing && listing.country) { %>
+          , <%= listing.country %>
+          <% } %>
+        </p>
+      </header>
 
-      <div class="card listing-card shadow-sm mb-4">
+      <section class="card listing-card shadow-sm mb-4">
         <img
-          src="<%= listing.image.url %>"
+          src="<%= (listing && listing.image && listing.image.url) ? listing.image.url : 'https://res.cloudinary.com/dflq6z9ey/image/upload/v1724323967/Wanderlust-Images/jr2x0rh7jopcgiahxiiq.jpg' %>"
           class="card-img-top show-img"
-          alt="listing-img"
+          alt="<%= listing && listing.title ? listing.title : 'Listing image' %>"
         />
         <div class="card-body">
-          <p class="card-text">
-            Owned by <i><%= listing?.owner?.username %></i>
+          <p class="card-text mb-2">
+            Owned by
+            <i>
+              <%= (listing && listing.owner && listing.owner.username) ? listing.owner.username : "Unknown host" %>
+            </i>
           </p>
-          <p class="card-text"><%= listing.description %></p>
-          <p class="card-text price">
-            &#8377; <%= listing.price.toLocaleString("en-IN") %> / Night
+          <p class="card-text">
+            <%= (listing && listing.description) ? listing.description : "No description provided for this listing." %>
+          </p>
+          <p class="card-text price fw-semibold mb-0">
+            &#8377;
+            <%= (listing && typeof listing.price === "number") ? listing.price.toLocaleString("en-IN") : "N/A" %>
+            / Night
           </p>
         </div>
-      </div>
+      </section>
 
-      <%if(currentUser.username === listing?.owner?.username) { %>
-      <div class="btns mb-4">
-        <a
-          href="/listings/<%= listing.id %>/edit"
-          class="btn btn-dark edit-btn"
-        >
+      <% if (currentUser && listing && listing.owner && String(currentUser._id) === String(listing.owner._id)) { %>
+      <section class="btns d-flex gap-2 mb-5">
+        <a href="/listings/<%= listing.id %>/edit" class="btn btn-dark">
           Edit
         </a>
         <form
@@ -40,16 +52,14 @@
           action="/listings/<%= listing.id %>/delete?_method=DELETE"
           class="d-inline"
         >
-          <button class="btn btn-danger">Delete</button>
+          <button class="btn btn-danger" type="submit">Delete</button>
         </form>
-      </div>
+      </section>
       <% } %>
 
-      <hr />
-
-      <% if(user) { %>
-      <div class="reviews-section">
-        <h4>Leave a Review</h4>
+      <% if (user) { %>
+      <section class="reviews-section mb-5">
+        <h4 class="mb-3">Leave a Review</h4>
         <form
           action="/listings/<%= listing.id %>/reviews"
           method="POST"
@@ -60,6 +70,7 @@
           <div class="mb-3">
             <label for="rating" class="form-label">Rating</label>
             <fieldset class="starability-basic">
+              <% const ratings = [1,2,3,4,5]; %>
               <input
                 type="radio"
                 id="no-rate"
@@ -69,41 +80,17 @@
                 checked
                 aria-label="No rating."
               />
+              <% for (const value of ratings) { %>
               <input
                 type="radio"
-                id="first-rate1"
+                id="rate-<%= value %>"
                 name="review[rating]"
-                value="1"
+                value="<%= value %>"
               />
-              <label for="first-rate1" title="Terrible">1 star</label>
-              <input
-                type="radio"
-                id="first-rate2"
-                name="review[rating]"
-                value="2"
-              />
-              <label for="first-rate2" title="Not good">2 stars</label>
-              <input
-                type="radio"
-                id="first-rate3"
-                name="review[rating]"
-                value="3"
-              />
-              <label for="first-rate3" title="Average">3 stars</label>
-              <input
-                type="radio"
-                id="first-rate4"
-                name="review[rating]"
-                value="4"
-              />
-              <label for="first-rate4" title="Very good">4 stars</label>
-              <input
-                type="radio"
-                id="first-rate5"
-                name="review[rating]"
-                value="5"
-              />
-              <label for="first-rate5" title="Amazing">5 stars</label>
+              <label for="rate-<%= value %>" title="<%= value %> star<%= value > 1 ? 's' : '' %>">
+                <%= value %> star<%= value > 1 ? 's' : '' %>
+              </label>
+              <% } %>
             </fieldset>
           </div>
           <div class="mb-3">
@@ -115,86 +102,136 @@
               id="comment"
               class="form-control"
               required
+              placeholder="Share your experience with this stay"
             ></textarea>
-            <div class="invalid-feedback">
-              Please add some comments for review
-            </div>
+            <div class="invalid-feedback">Please add some comments for review</div>
           </div>
-          <button class="btn btn-outline-dark">Post Review</button>
+          <button class="btn btn-outline-dark" type="submit">Post Review</button>
         </form>
-      </div>
-      <hr />
+      </section>
       <% } %>
 
-      <div class="reviews-list">
-        <h4>All Reviews</h4>
+      <section class="reviews-list">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0">All Reviews</h4>
+          <% const reviewCount = listing && Array.isArray(listing.reviews) ? listing.reviews.length : 0; %>
+          <span class="badge bg-secondary"><%= reviewCount %> total</span>
+        </div>
+
+        <% if (reviewCount === 0) { %>
+        <div class="alert alert-light border text-muted">
+          No reviews yet. Be the first to share your experience!
+        </div>
+        <% } else { %>
         <div class="row">
-          <% for(review of listing.reviews){ %>
+          <% for (const review of (listing.reviews || [])) { %>
           <div class="col-md-6 mb-3">
-            <div class="card review-card">
+            <article class="card review-card h-100">
               <div class="card-body">
-                <h5 class="card-title">@<%= review.author.username %></h5>
+                <h5 class="card-title">
+                  @<%= (review && review.author && review.author.username) ? review.author.username : "anonymous" %>
+                </h5>
                 <p
                   class="starability-result card-text"
-                  data-rating="<%= review.rating %>"
+                  data-rating="<%= review && typeof review.rating === 'number' ? review.rating : 0 %>"
                 ></p>
-                <p class="card-text"><%= review.comment %></p>
-                <% if(currentUser?.username === review?.author?.username) { %>
+                <p class="card-text">
+                  <%= (review && review.comment) ? review.comment : "No comment provided." %>
+                </p>
+                <% if (
+                  currentUser &&
+                  review &&
+                  review.author &&
+                  String(currentUser._id) === String(review.author._id)
+                ) { %>
                 <form
                   method="POST"
-                  action="/listings/<%= listing.id %>/reviews/<%= review.id%>?_method=DELETE"
+                  action="/listings/<%= listing.id %>/reviews/<%= review._id %>?_method=DELETE"
                 >
-                  <button class="btn btn-sm btn-outline-danger">Delete</button>
+                  <button class="btn btn-sm btn-outline-danger" type="submit">
+                    Delete
+                  </button>
                 </form>
                 <% } %>
               </div>
-            </div>
+            </article>
           </div>
           <% } %>
         </div>
-      </div>
+        <% } %>
+      </section>
 
-      <div class="map-section mt-4">
+      <section class="map-section mt-5">
         <h4>Where you'll be</h4>
-        <div id="map"></div>
-      </div>
+        <div id="map" class="rounded shadow-sm"></div>
+      </section>
     </div>
   </div>
+  <% } else { %>
+  <div class="alert alert-warning" role="alert">
+    Listing data is currently unavailable. Please try again later.
+  </div>
+  <% } %>
 </div>
 
-<script>
-  const form = document.getElementById("review-form");
-  const ratingInputs = form.querySelectorAll('input[name="review[rating]"]');
-  form.addEventListener("submit", function (event) {
-    let isMinimumOneChecked = false;
-    ratingInputs.forEach((input) => {
-      if (input.checked && input.value !== "0") {
-        isMinimumOneChecked = true;
-      }
-    });
-    if (!isMinimumOneChecked) {
-      event.preventDefault();
-      event.stopPropagation();
-      alert("Please select a rating before submitting the review.");
-      return;
-    }
-  });
-</script>
 
 <script>
-  const listing = JSON.parse("<%- JSON.stringify(listing) %>");
+  const listingData = <%- JSON.stringify(listing || null) %>;
+
   const fetchCord = async (city = "") => {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${city}&format=json&limit=1`
-    );
-    const data = await res.json();
-    if (data && data.length > 0) {
-      return { lat: data[0].lat, lon: data[0].lon };
+    if (!city) {
+      return { lat: 0, lon: 0 };
     }
+
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+          city
+        )}&format=json&limit=1`
+      );
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        return {
+          lat: parseFloat(data[0].lat) || 0,
+          lon: parseFloat(data[0].lon) || 0,
+        };
+      }
+    } catch (error) {
+      console.error("Failed to fetch coordinates", error);
+    }
+
     return { lat: 0, lon: 0 }; // Default coordinates
   };
+
   const initMap = async () => {
-    const { lat, lon } = await fetchCord(listing.location);
+    if (!listingData || !listingData.location) {
+      console.warn("Listing data is missing, map will not render");
+      return;
+    }
+
+    let lat = 0;
+    let lon = 0;
+
+    if (
+      listingData.geometry &&
+      Array.isArray(listingData.geometry.coordinates) &&
+      listingData.geometry.coordinates.length === 2
+    ) {
+      lat = parseFloat(listingData.geometry.coordinates[0]) || 0;
+      lon = parseFloat(listingData.geometry.coordinates[1]) || 0;
+    }
+
+    if (lat === 0 && lon === 0) {
+      const coords = await fetchCord(listingData.location);
+      lat = coords.lat;
+      lon = coords.lon;
+    }
+
+    if (lat === 0 && lon === 0) {
+      console.warn("No valid coordinates found for map");
+      return;
+    }
+
     const map = L.map("map").setView([lat, lon], 10);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -203,11 +240,38 @@
         '&copy; <a href="https://www.openstreetmap.org/">OSM</a> contributors',
     }).addTo(map);
 
-    const marker = L.marker([lat, lon]).addTo(map);
-    marker
-      .bindPopup(`<b><%= listing.title %></b><br><%= listing.location %>`)
+    L.marker([lat, lon])
+      .addTo(map)
+      .bindPopup(
+        `<b>${listingData.title || "Listing"}</b><br>${listingData.location}`
+      )
       .openPopup();
   };
 
-  initMap();
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initMap);
+  } else {
+    initMap();
+  }
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("review-form");
+  if (!form) return;
+
+  const ratingInputs = form.querySelectorAll('input[name="review[rating]"]');
+  form.addEventListener("submit", (event) => {
+    let isMinimumOneChecked = false;
+    ratingInputs.forEach((input) => {
+      if (input.checked && input.value !== "0") {
+        isMinimumOneChecked = true;
+      }
+    });
+    if (!isMinimumOneChecked) {
+      event.preventDefault();
+      alert("Please select a rating before submitting the review.");
+    }
+  });
+});
 </script>
