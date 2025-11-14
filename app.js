@@ -29,6 +29,7 @@ main()
   .catch((err) => {
     console.log(err);
   });
+  
 
 async function main() {
   await mongoose.connect(dbUrl);
@@ -40,6 +41,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "public")));
+
+// Initialize locals early to prevent undefined errors
+app.use((req, res, next) => {
+  res.locals.user = null;
+  res.locals.success = [];
+  res.locals.error = [];
+  next();
+});
 
 const store = MongoStore.create({
   mongoUrl: dbUrl,
@@ -77,22 +86,19 @@ passport.use(new LocalStrategy(User.authenticate())); // use static authenticate
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-//Root
-// app.get("/", (req, res) => {
-//     let {name} = req.query;
-//     req.session.name = name;
-//     req.flash("key", "New Listing Created");
-//     console.log(req.session.flash);
-//     res.redirect("/hello");
-// });
+//Root - Redirect to /listings
+app.get("/", (req, res) => {
+  res.redirect("/listings");
+});
 
 //to store local variable
 app.use("/", (req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
-  res.locals.user = req.user;
+  res.locals.user = req.user || null;
   next();
 });
+
 
 app.use("/listings", listingRouter); //to use listing.js routes
 app.use("/listings/:id/reviews", reviewRouter);
